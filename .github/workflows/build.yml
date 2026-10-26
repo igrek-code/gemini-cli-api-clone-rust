@@ -36,3 +36,22 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: "Gemini API.zip"
+
+  linux:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --locked
+      - run: strip target/release/gemini-api && tar -czf gemini-api-linux-amd64.tar.gz -C target/release gemini-api
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gemini-api-linux-amd64
+          path: gemini-api-linux-amd64.tar.gz
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: gemini-api-linux-amd64.tar.gz
