@@ -2,7 +2,8 @@
 # Builds "Gemini API.app" from the release binary (run on macOS).
 set -euo pipefail
 
-APP_NAME="Gemini API"
+APP_NAME="Gemini API.app"
+ZIP_NAME="Gemini-API-macOS.zip"
 BIN="target/release/gemini-api"
 VERSION="$(cargo metadata --no-deps --format-version 1 | python3 -c 'import json,sys; print(json.load(sys.stdin)["packages"][0]["version"])')"
 
@@ -11,7 +12,7 @@ if [[ ! -f "$BIN" ]]; then
   exit 1
 fi
 
-rm -rf "$APP_NAME" "$APP_NAME.zip"
+rm -rf "$APP_NAME" "$ZIP_NAME"
 mkdir -p "$APP_NAME/Contents/MacOS" "$APP_NAME/Contents/Resources"
 
 cp "$BIN" "$APP_NAME/Contents/MacOS/gemini-api"
@@ -49,6 +50,6 @@ EOF
 codesign --force --sign - "$APP_NAME" >/dev/null 2>&1 || true
 
 # Zip preserving the bundle structure and executable bits
-ditto -c -k --keepParent "$APP_NAME" "$APP_NAME.zip"
+ditto -c -k --keepParent "$APP_NAME" "$ZIP_NAME"
 
-echo "built: $APP_NAME ($APP_NAME.zip, v$VERSION)"
+echo "built: $APP_NAME ($ZIP_NAME, v$VERSION)"
